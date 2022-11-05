@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 import pymysql
 
+load_dotenv()
 AZURE_MYSQL_HOSTNAME = os.getenv("AZURE_MYSQL_HOSTNAME")
 AZURE_MYSQL_USER = os.getenv("AZURE_MYSQL_USERNAME")
 AZURE_MYSQL_PASSWORD = os.getenv("AZURE_MYSQL_PASSWORD")
