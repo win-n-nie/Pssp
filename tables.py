@@ -33,16 +33,14 @@ create table if not exists patients (
 table_medications = """
 create table if not exists medications (
     id int auto_increment,
-    mrn varchar(255) default null,
     med_ndc varchar(255) default null unique,
     med_human_name varchar(255) default null,
-    PRIMARY KEY (id),
-    FOREIGN KEY (mrn) REFERENCES patients(mrn) ON DELETE CASCADE
+    PRIMARY KEY (id)
     );
 """
 
 table_pat_medications = """
-create table if not exists patients_medications (
+create table if not exists patient_medications (
     id int auto_increment,
     mrn varchar(255) default null,
     med_ndc varchar(255) default null unique,

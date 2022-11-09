@@ -141,7 +141,10 @@ for index, row in df_patient_medications.iterrows():
 
 
 ##patient conditions data
-insertQuery = "INSERT INTO patient_conditions (mrn, icd10_code, icd10_description) VALUES (%s, %s, %s)"
+
+df_pat_condition = pd.read_sql_query("SELECT mrn FROM patients", db_azure)
+
+insertQuery = "INSERT INTO patient_conditions (icd10_code, icd10_description) VALUES (%s, %s)"
 
 startingRow = 0
 for index, row in icd10codesShort_1k.iterrows():
@@ -149,7 +152,7 @@ for index, row in icd10codesShort_1k.iterrows():
     print('startingRow: ', startingRow)
     # db_azure.execute(insertQuery, (row['CodeWithSeparator'], row['ShortDescription']))
     print("inserted row db_azure: ", index)
-    db_azure.execute(insertQuery, (row['mrn'], row['CodeWithSeparator'], row['ShortDescription']))
+    db_azure.execute(insertQuery, (row['CodeWithSeparator'], row['ShortDescription']))
     print("inserted row db_gcp: ", index)
     ## stop once we have 100 rows
     if startingRow == 100:
