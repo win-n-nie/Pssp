@@ -11,9 +11,9 @@ mysql_host = os.getenv("MYSQL_HOST")
 
 db = SQLAlchemy()
 app = Flask(__name__)
-print(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://' + mysql_username + ':' + mysql_password + '@' + mysql_host + ':3306/patient_portal'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://' + mysql_username + ':' + mysql_password + '@' + mysql_host + ':3306/patients'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'sdf#$#dfjkhdf0SDJH0df9fd98343fdfu34rf'
 
 db.init_app(app)
@@ -29,6 +29,9 @@ class Patients(db.Model):
     last_name = db.Column(db.String(255))
     zip_code = db.Column(db.String(255), nullable=True)
     gender = db.Column(db.String(255), nullable=True)
+    dob = db.Column(db.String(255), nullable=True)
+    contact_mobile = db.Column(db.String(255), nullable=True)
+    contact_home = db.Column(db.String(255), nullable=True)
 
     # this first function __init__ is to establish the class for python GUI
     def __init__(self, mrn, first_name, last_name, zip_code, gender):
@@ -37,6 +40,9 @@ class Patients(db.Model):
         self.last_name = last_name
         self.zip_code = zip_code
         self.gender = gender
+        self.dob = dob
+        self.contact_mobile = contact_mobile
+        self.contact_home = contact_home
 
     # this second function is for the API endpoints to return JSON 
     def to_json(self):
@@ -47,14 +53,17 @@ class Patients(db.Model):
             'last_name': self.last_name,
             'zip_code': self.zip_code,
             'gender': self.gender
+            'dob' : self.dob
+            'contact_mobile' : self.contact_mobile
+            'contact_home' : self.contact_home
         }
 
 class Conditions_patient(db.Model):
     __tablename__ = 'patient_conditions'
 
     id = db.Column(db.Integer, primary_key=True)
-    mrn = db.Column(db.String(255), db.ForeignKey('production_patients.mrn'))
-    icd10_code = db.Column(db.String(255), db.ForeignKey('production_conditions.icd10_code'))
+    mrn = db.Column(db.String(255), db.ForeignKey('patients.mrn'))
+    icd10_code = db.Column(db.String(255), db.ForeignKey('conditions.icd10_code'))
 
     # this first function __init__ is to establish the class for python GUI
     def __init__(self, mrn, icd10_code):
@@ -93,8 +102,8 @@ class Medications_patient(db.Model):
     __tablename__ = 'patient_medications'
 
     id = db.Column(db.Integer, primary_key=True)
-    mrn = db.Column(db.String(255), db.ForeignKey('production_patients.mrn'))
-    med_ndc = db.Column(db.String(255), db.ForeignKey('production_medications.med_ndc'))
+    mrn = db.Column(db.String(255), db.ForeignKey('patients.mrn'))
+    med_ndc = db.Column(db.String(255), db.ForeignKey('medications.med_ndc'))
 
     # this first function __init__ is to establish the class for python GUI
     def __init__(self, mrn, med_ndc):
@@ -129,10 +138,8 @@ class Medications(db.Model):
             'med_human_name': self.med_human_name
         }
 
-
-
 #### BASIC ROUTES WITHOUT DATA PULSL FOR NOW ####
-@app.route('/')
+@app.route('/home')
 def index():
     return render_template('home.html')
 
@@ -290,11 +297,6 @@ def delete_patient(mrn):
     db.session.delete(patient)
     db.session.commit()
     return jsonify({'result': True})
-
-
-
-
-
 
 
 
