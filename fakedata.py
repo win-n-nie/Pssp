@@ -98,7 +98,25 @@ for index, row in df_fake_patients.iterrows():
 
 
 ########## INSERTING IN FAKE MEDICATIONS ##########
-insertQuery = "INSERT INTO medications (med_ndc, med_human_name) VALUES (%s, %s)"
+
+df_medications = pd.read_sql_query("SELECT med_ndc FROM medications", db_azure) 
+df_patients= pd.read_sql_query("SELECT mrn FROM patients", db_azure)
+# create a dataframe that is stacked and give each patient a random number of medications between 1 and 5
+df_patient_medications = pd.DataFrame(columns=['mrn', 'med_ndc'])
+# for each patient in df_patient_medications, take a random number of medications between 1 and 10 from df_medications and palce it in df_patient_medications
+for index, row in df_patients.iterrows():
+    # get a random number of medications between 1 and 5
+    numMedications = random.randint(3, 5)
+    # get a random sample of medications from df_medications
+    df_medications_sample = df_medications.sample(n=numMedications)
+    # add the mrn to the df_medications_sample
+    df_medications_sample['mrn'] = row['mrn']
+    # append the df_medications_sample to df_patient_medications
+    df_patient_medications = df_patient_medications.append(df_medications_sample)
+
+print(df_patient_medications.head(10))
+
+insertQuery = "INSERT INTO medications (mrn, med_ndc, med_human_name) VALUES (%s, %s, %s)"
 
 medRowCount = 0
 for index, row in ndc_codes_1k.iterrows():
@@ -112,7 +130,7 @@ for index, row in ndc_codes_1k.iterrows():
 
 
 ##patient conditions data
-insertQuery = "INSERT INTO patient_conditions (icd10_code, icd10_description) VALUES (%s, %s)"
+insertQuery = "INSERT INTO patient_conditions (mrn, icd10_code, icd10_description) VALUES (%s, %s, %s)"
 
 startingRow = 0
 for index, row in icd10codesShort_1k.iterrows():
@@ -120,7 +138,7 @@ for index, row in icd10codesShort_1k.iterrows():
     print('startingRow: ', startingRow)
     # db_azure.execute(insertQuery, (row['CodeWithSeparator'], row['ShortDescription']))
     print("inserted row db_azure: ", index)
-    db_azure.execute(insertQuery, (row['CodeWithSeparator'], row['ShortDescription']))
+    db_azure.execute(insertQuery, (row['mrn'], row['CodeWithSeparator'], row['ShortDescription']))
     print("inserted row db_gcp: ", index)
     ## stop once we have 100 rows
     if startingRow == 100:
