@@ -44,6 +44,9 @@
                         <th>Last Name</th>
                         <th>Zip Code</th>
                         <th>Gender</th>
+                        <th>DOB</th>
+                        <th>Contact Home</th>
+                        <th>Contact Mobile</th>
                         <th>Setting</th>
 
                     </tr>
@@ -57,6 +60,9 @@
                         <td>{{row.last_name}}</td>
                         <td>{{row.zip_code}} </td>
                         <td>{{row.gender}}</td>
+                        <td>{{row.dob}}</td>
+                        <td>{{row.contact_home}} </td>
+                        <td>{{row.contact_mobile}}</td>
                         <td>
                             <a href="/update/{{row.mrn}}" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modaledit{{row.mrn}}">Edit</a>
                             <a href="/delete/{{row.mrn}}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure To Delete ?')">Delete</a>
@@ -163,7 +169,7 @@
                             </div>
                             <div class="form-group">
                                 <label> Contact Mobile </label>
-                                <input type="text" class="form-control" name="contat_mobile" required="1">
+                                <input type="text" class="form-control" name="contact_mobile" required="1">
                             </div>
                             <div class="form-group">
                                 <button class="btn btn-primary" type="submit">Add Patient</button>
