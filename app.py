@@ -52,9 +52,9 @@ class Patients(db.Model):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'zip_code': self.zip_code,
-            'gender': self.gender
-            'dob' : self.dob
-            'contact_mobile' : self.contact_mobile
+            'gender': self.gender,
+            'dob' : self.dob,
+            'contact_mobile' : self.contact_mobile,
             'contact_home' : self.contact_home
         }
 
