@@ -207,11 +207,13 @@ def get_patient_details(mrn):
     patient_details = Patients.query.filter_by(mrn=mrn).first()
     patient_conditions = Conditions_patient.query.filter_by(mrn=mrn).all()
     patient_medications = Medications_patient.query.filter_by(mrn=mrn).all()
+    patient_procedures = Procedures_patient.query.filter_by(mrn=mrn).all()
     db_conditions = Conditions.query.all()
     db_medications = Medications.query.all()
+    db_procedures = Procedures.query.all()
     return render_template("patient_details.html", patient_details = patient_details, 
-        patient_conditions = patient_conditions, patient_medications = patient_medications,
-        db_conditions = db_conditions, db_medications = db_medications)
+        patient_conditions = patient_conditions, patient_medications = patient_medications, patient_procedures = patient_procedures
+        db_conditions = db_conditions, db_medications = db_medications, db_procedures = db_procedures)
 
 
 # this endpoint is for updating ONE patient condition

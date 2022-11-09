@@ -53,22 +53,38 @@ create table if not exists patient_medications (
 table_treatments_procedures = """
 create table if not exists treatments_procedures (
     id int auto_increment,
-    mrn varchar(255) default null,
     CPT_code varchar(255) default null,
     CPT_description varchar(255) default null,
-    PRIMARY KEY (id),
-    FOREIGN KEY (mrn) REFERENCES patients(mrn) ON DELETE CASCADE
+    PRIMARY KEY (id)
 );
 """
-
-table_conditions = """
+table_pat_procedures = """
+create table if not exists patient_procedures(
+    id int auto_increment,
+    mrn varchar(255) default null,
+    CPT_description varchar(255) default null,
+    PRIMARY KEY (id),
+    FOREIGN KEY (mrn) REFERENCES patients(mrn) ON DELETE CASCADE,
+    FOREIGN KEY (CPT_description) REFERENCES treatments_procedures(CPT_description) ON DELETE CASCADE
+);
+"""
+table_condition = """
+create table if not exists conditions (
+    id int auto_increment,
+    icd10_code varchar(255) default null unique,
+    icd10_description varchar(255) default null,
+    PRIMARY KEY (id)
+); 
+"""
+table_pat_conditions = """
 create table if not exists patient_conditions (
     id int auto_increment,
     mrn varchar(255),
     icd10_code varchar(255) default null unique,
-    icd10_description varchar(255) default null,
     PRIMARY KEY (id),
-    FOREIGN KEY (mrn) REFERENCES patients(mrn) ON DELETE CASCADE
+    FOREIGN KEY (mrn) REFERENCES patients(mrn) ON DELETE CASCADE,
+    FOREIGN KEY (icd10_code) REFERENCES conditions(icd10_code) ON DELETE CASCADE
+
 ); 
 """
 
@@ -86,8 +102,11 @@ db_azure.execute(table_patients)
 db_azure.execute(table_medications)
 
 db_azure.execute(table_pat_medications)
-db_azure.execute(table_treatments_procedures)
 
-db_azure.execute(table_conditions)
+db_azure.execute(table_treatments_procedures)
+db_azure.execute(table_pat_procedures)
+
+db_azure.execute(table_condition)
+db_azure.execute(table_pat_conditions)
 
 db_azure.execute(table_social_determinants)
