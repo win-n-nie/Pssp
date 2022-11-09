@@ -99,24 +99,10 @@ for index, row in df_fake_patients.iterrows():
 
 ########## INSERTING IN FAKE MEDICATIONS ##########
 
-df_medications = pd.read_sql_query("SELECT med_ndc FROM medications", db_azure) 
-df_patients= pd.read_sql_query("SELECT mrn FROM patients", db_azure)
-# create a dataframe that is stacked and give each patient a random number of medications between 1 and 5
-df_patient_medications = pd.DataFrame(columns=['mrn', 'med_ndc'])
-# for each patient in df_patient_medications, take a random number of medications between 1 and 10 from df_medications and palce it in df_patient_medications
-for index, row in df_patients.iterrows():
-    # get a random number of medications between 1 and 5
-    numMedications = random.randint(3, 5)
-    # get a random sample of medications from df_medications
-    df_medications_sample = df_medications.sample(n=numMedications)
-    # add the mrn to the df_medications_sample
-    df_medications_sample['mrn'] = row['mrn']
-    # append the df_medications_sample to df_patient_medications
-    df_patient_medications = df_patient_medications.append(df_medications_sample)
 
-print(df_patient_medications.head(10))
 
-insertQuery = "INSERT INTO medications (mrn, med_ndc, med_human_name) VALUES (%s, %s, %s)"
+
+insertQuery = "INSERT INTO medications (med_ndc, med_human_name) VALUES (%s, %s)"
 
 medRowCount = 0
 for index, row in ndc_codes_1k.iterrows():
@@ -127,6 +113,31 @@ for index, row in ndc_codes_1k.iterrows():
     ## stop once we have 50 rows
     if medRowCount == 75:
         break
+
+
+
+
+#### patients medications
+
+df_medications = pd.read_sql_query("SELECT med_ndc FROM medications", db_azure) 
+df_patients= pd.read_sql_query("SELECT mrn FROM patients", db_azure)
+# create a dataframe that is stacked and give each patient a random number of medications between 1 and 5
+df_patient_medications = pd.DataFrame(columns=['mrn', 'med_ndc'])
+# for each patient in df_patient_medications, take a random number of medications between 1 and 10 from df_medications and palce it in df_patient_medications
+for index, row in df_patients.iterrows():
+    numMedications = random.randint(1, 5)
+    df_med_sample = df_medications.sample(n=numMedications)
+    df_med_sample['mrn'] = row['mrn']
+    # append the df_medications_sample to df_patient_medications
+    df_patient_medications = df_patient_medications.append(df_med_sample)
+
+print(df_patient_medications.head(10))
+
+insertQuery = "INSERT INTO patient_medications (mrn, med_ndc) VALUES (%s, %s)"
+
+for index, row in df_patient_medications.iterrows():
+    db_azure.execute(insertQuery, (row['mrn'], row['med_ndc']))
+    print("inserted row: ", index)
 
 
 ##patient conditions data

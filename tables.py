@@ -38,6 +38,17 @@ create table if not exists medications (
     med_human_name varchar(255) default null,
     PRIMARY KEY (id),
     FOREIGN KEY (mrn) REFERENCES patients(mrn) ON DELETE CASCADE
+    );
+"""
+
+table_pat_medications = """
+create table if not exists patients_medications (
+    id int auto_increment,
+    mrn varchar(255) default null,
+    med_ndc varchar(255) default null unique,
+    PRIMARY KEY (id),
+    FOREIGN KEY (mrn) REFERENCES patients(mrn) ON DELETE CASCADE,
+    FOREIGN KEY (med_ndc) REFERENCES medications(med_ndc) ON DELETE CASCADE
 ); 
 """
 
@@ -76,6 +87,7 @@ db_azure.execute(table_patients)
 
 db_azure.execute(table_medications)
 
+db_azure.execute(table_pat_medications)
 db_azure.execute(table_treatments_procedures)
 
 db_azure.execute(table_conditions)
