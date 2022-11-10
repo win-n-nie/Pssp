@@ -226,6 +226,9 @@ def update(): # note this function needs to match name in html form action
         patient.first_name = request.form.get('first_name')
         patient.last_name = request.form.get('last_name')
         patient.gender = request.form.get('gender')
+        patient.pronouns = request.form.get('pronoun')
+        patient.allergies = request.form.get('allergies')
+        patient.perferred_name = request.form.get('perferred_name')
         db.session.commit()
         flash("Patient Updated Successfully")
         return redirect(url_for('get_gui_patients'))
@@ -242,18 +245,6 @@ def delete(mrn): # note this function needs to match name in html form action
 
 
 #This route is for getting patient details
-@app.route('/details/<string:mrn>', methods = ['GET'])
-def get_patient_details(mrn):
-    patient_details = Patients.query.filter_by(mrn=mrn).first()
-    patient_conditions = Conditions_patient.query.filter_by(mrn=mrn).all()
-    patient_medications = Medications_patient.query.filter_by(mrn=mrn).all()
-    patient_procedures = Procedures_patient.query.filter_by(mrn=mrn).all()
-    db_conditions = Conditions.query.all()
-    db_medications = Medications.query.all()
-    db_procedures = Procedures.query.all()
-    return render_template("patient_details.html", patient_details = patient_details, 
-        patient_conditions = patient_conditions, patient_medications = patient_medications, patient_procedures = patient_procedures
-        db_conditions = db_conditions, db_medications = db_medications, db_procedures = db_procedures)
 @app.route('/details/<string:mrn>', methods = ['GET'])
 def get_patient_details(mrn):
     patient_details = Patients.query.filter_by(mrn=mrn).first()
@@ -295,10 +286,6 @@ def update_conditions(): # note this function needs to match name in html form a
 
 
 
-
-
-
-
 ##### CREATE BASIC API ENDPOINTS #####
 # get all Patients
 @app.route("/api/patients/list", methods=["GET"])
@@ -324,7 +311,10 @@ def create_patient():
     patient = Patients(
         mrn=request.json.get('mrn'),
         first_name=request.json.get('first_name'),
-        last_name=request.json.get('last_name')
+        last_name=request.json.get('last_name'),
+        pronouns = request.form.get('pronoun'),
+        allergies = request.form.get('allergies'),
+        perferred_name = request.form.get('perferred_name')
     )
     db.session.add(patient)
     db.session.commit()

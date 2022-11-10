@@ -146,7 +146,7 @@ the second container is for vitals, the third container is for allergies, and th
                                     {% for x in patient_medications %}
                                     <td>  {{x.med_ndc}} </td>
                                     {% endfor %}
-                    
+                                
 
                             </table>
                         </div>
@@ -157,7 +157,10 @@ the second container is for vitals, the third container is for allergies, and th
                             <table class="table table-hover table-dark">
                                 <tr>
                                     <th>Procedure Name</th>
-                                    <td>not yet developed</td>
+                                    {% for x in patient_procedures %}
+                                    <td>{{x.CPT_description}}</td>
+                                    {% endfor %}
+
                                 </tr>
                             </table>
                         </div>
