@@ -54,19 +54,6 @@ list(cptcodes.columns)
 newCPTcode = cptcodes.rename(columns={'com.medigy.persist.reference.type.clincial.CPT.code':'CPT_code', 'label':'CPT_description'})
 newCPTcode.sample(n=100)
 
-##treatment/procedure fake data
-insertQuery = "INSERT INTO treatments_procedures (CPT_code, CPT_description) VALUES (%s, %s)"
-startingRow = 0
-for index, row in newCPTcode.iterrows():
-    startingRow += 1
-    print('startingRow: ', startingRow)
-    # db_azure.execute(insertQuery, (row['CodeWithSeparator'], row['ShortDescription']))
-    print("inserted row db_azure: ", index)
-    db_azure.execute(insertQuery, (row['CPT_code'], row['CPT_description']))
-    print("inserted row db_gcp: ", index)
-    ## stop once we have 100 rows
-    if startingRow == 60:
-        break
 
 ###LOINC
 loinc = pd.read_csv('/Users/wendyarias/Desktop/GitHub/cloud-managed-MySQL/Loinc.csv')
@@ -157,11 +144,6 @@ insertQuery = "INSERT INTO patient_conditions (mrn, icd10_code) VALUES (%s, %s)"
 for index, row in df_patient_conditions.iterrows():
     db_azure.execute(insertQuery, (row['mrn'], row['icd10_code']))
     print("inserted row: ", index)
-
-
-
-
-
 insertQuery = "INSERT INTO conditions (icd10_code, icd10_description) VALUES (%s, %s)"
 
 startingRow = 0
@@ -175,3 +157,38 @@ for index, row in icd10codesShort_1k.iterrows():
     ## stop once we have 100 rows
     if startingRow == 100:
         break
+
+
+#### PROCEDURES
+df_pat_procedure = pd.read_sql_query("SELECT mrn FROM patients", db_azure)
+df_procedure = pd.read_sql_query("SELECT CPT_description FROM procedures", db_azure) 
+# create a dataframe that is stacked and give each patient a random number of medications between 1 and 5
+df_patient_procedures = pd.DataFrame(columns=['mrn', 'CPT_description'])
+# for each patient in df_patient_medications, take a random number of medications between 1 and 10 from df_medications and palce it in df_patient_medications
+for index, row in df_pat_procedure.iterrows():
+    numProcedure = random.randint(1, 5)
+    df_proc_sample = df_procedure.sample(n=numProcedure)
+    df_proc_sample['mrn'] = row['mrn']
+    # append the df_medications_sample to df_patient_medications
+    df_patient_procedures = df_patient_procedures.append(df_proc_sample)
+
+insertQuery = "INSERT INTO patient_procedures (mrn, CPT_description) VALUES (%s, %s)"
+
+for index, row in df_patient_procedures.iterrows():
+    db_azure.execute(insertQuery, (row['mrn'], row['CPT_description']))
+    print("inserted row: ", index)
+
+
+insertQuery = "INSERT procedures (CPT_code, CPT_description) VALUES (%s, %s)"
+startingRow = 0
+for index, row in newCPTcode.iterrows():
+    startingRow += 1
+    print('startingRow: ', startingRow)
+    # db_azure.execute(insertQuery, (row['CodeWithSeparator'], row['ShortDescription']))
+    print("inserted row db_azure: ", index)
+    db_azure.execute(insertQuery, (row['CPT_code'], row['CPT_description']))
+    print("inserted row db_gcp: ", index)
+    ## stop once we have 100 rows
+    if startingRow == 60:
+        break
+

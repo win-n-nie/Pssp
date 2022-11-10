@@ -138,6 +138,46 @@ class Medications(db.Model):
             'med_human_name': self.med_human_name
         }
 
+class Procedures_patient(db.Model):
+    __tablename__ = 'patient_procedures'
+
+    id = db.Column(db.Integer, primary_key=True)
+    mrn = db.Column(db.String(255), db.ForeignKey('patients.mrn'))
+    CPT_description = db.Column(db.String(255), db.ForeignKey('procedures.CPT_description'))
+
+    # this first function __init__ is to establish the class for python GUI
+    def __init__(self, mrn, med_ndc):
+        self.mrn = mrn
+        self.CPT_description = CPT_description
+
+    # this second function is for the API endpoints to return JSON
+    def to_json(self):
+        return {
+            'id': self.id,
+            'mrn': self.mrn,
+            'CPT_description': self.CPT_description
+        }
+    
+class Procedures(db.Model):
+    __tablename__ = 'procedures'
+
+    id = db.Column(db.Integer, primary_key=True)
+    CPT_code = db.Column(db.String(255))
+    CPT_description = db.Column(db.String(255))
+
+    # this first function __init__ is to establish the class for python GUI
+    def __init__(self, CPT_code, CPT_description):
+        self.CPT_code = CPT_code
+        self.CPT_description = CPT_description
+
+    # this second function is for the API endpoints to return JSON
+    def to_json(self):
+        return {
+            'id': self.id,
+            'CPT_code': self.CPT_code,
+            'CPT_description': self.CPT_description
+        }
+
 #### BASIC ROUTES WITHOUT DATA PULSL FOR NOW ####
 @app.route('/home')
 def index():
@@ -213,6 +253,19 @@ def get_patient_details(mrn):
     db_procedures = Procedures.query.all()
     return render_template("patient_details.html", patient_details = patient_details, 
         patient_conditions = patient_conditions, patient_medications = patient_medications, patient_procedures = patient_procedures
+        db_conditions = db_conditions, db_medications = db_medications, db_procedures = db_procedures)
+@app.route('/details/<string:mrn>', methods = ['GET'])
+def get_patient_details(mrn):
+    patient_details = Patients.query.filter_by(mrn=mrn).first()
+    patient_conditions = Conditions_patient.query.filter_by(mrn=mrn).all()
+    patient_medications = Medications_patient.query.filter_by(mrn=mrn).all()
+    patient_procedures = Procedures_patient.query.filter_by(mrn=mrn).all()
+    db_conditions = Conditions.query.all()
+    db_medications = Medications.query.all()
+    db_procedures = Procedures.query.all()
+    return render_template("patient_details.html", patient_details = patient_details, 
+        patient_conditions = patient_conditions, patient_medications = patient_medications,
+        patient_procedures = patient_procedures,
         db_conditions = db_conditions, db_medications = db_medications, db_procedures = db_procedures)
 
 

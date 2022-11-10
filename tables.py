@@ -54,7 +54,7 @@ table_treatments_procedures = """
 create table if not exists procedures (
     id int auto_increment,
     CPT_code varchar(255) default null,
-    CPT_description varchar(255) default null,
+    CPT_description varchar(255) default null unique,
     PRIMARY KEY (id)
 );
 """
@@ -64,10 +64,10 @@ table_pat_procedures = """
 create table if not exists patient_procedures (
     id int auto_increment,
     mrn varchar(255) default null,
-    CPT_code varchar(255) default null,
+    CPT_description varchar(255) default null,
     PRIMARY KEY (id),
     FOREIGN KEY (mrn) REFERENCES patients(mrn) ON DELETE CASCADE,
-    FOREIGN KEY (CPT_code) REFERENCES procedures(CPT_code) ON DELETE CASCADE
+    FOREIGN KEY (CPT_description) REFERENCES procedures(CPT_description) ON DELETE CASCADE
 );
 """
 
@@ -84,7 +84,7 @@ table_pat_conditions = """
 create table if not exists patient_conditions (
     id int auto_increment,
     mrn varchar(255),
-    icd10_code varchar(255) default null unique,
+    icd10_code varchar(255) default null,
     PRIMARY KEY (id),
     FOREIGN KEY (mrn) REFERENCES patients(mrn) ON DELETE CASCADE,
     FOREIGN KEY (icd10_code) REFERENCES conditions(icd10_code) ON DELETE CASCADE
